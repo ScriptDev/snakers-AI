@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - Dual AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Menu de itens do Jogo 1 -->
+    <div class="tool-selector" id="tools1">
+        <button class="tool-btn" data-tool="wall">🧱 Muro</button>
+        <button class="tool-btn" data-tool="tree">🌳 Árvore</button>
+        <button class="tool-btn" data-tool="water">💧 Água</button>
+        <button class="tool-btn" data-tool="parasite">🦠 Parasita</button>
+        <button class="tool-btn" data-tool="tunnel">🌀 Túnel</button>
+        <button class="tool-btn" data-tool="eraser">🧹 Apagar</button>
+    </div>
+
+    <!-- Debug Prompt -->
+    <div class="floating-prompt debug-prompt" id="debugPrompt">
+        <div class="prompt-header">
+            <span>🔍 Debug IA</span>
+            <button class="prompt-btn" id="closeDebug">×</button>
+        </div>
+        <div class="prompt-content">
+            <div class="debug-tabs">
+                <button class="prompt-btn active" data-ia="1">IA 1</button>
+                <button class="prompt-btn" data-ia="2">IA 2</button>
+            </div>
+            <div id="debugInfo"></div>
+        </div>
+    </div>
+
+    <!-- Containers dos Jogos -->
+    <div class="games-container">
+        <!-- Jogo 1 -->
+        <div class="game-container" id="game1">
+            <canvas id="gameCanvas1"></canvas>
+            <div class="stats-panel">
+                <div class="level-container">Level: <span id="level1">1</span></div>
+                <div class="gold-container">Gold: <span id="gold1">0</span></div>
+                <div class="xp-bar-container">
+                    <div id="xp-bar1"></div>
+                    <span class="xp-text">XP: <span id="xp1">0</span>%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jogo 2 -->
+        <div class="game-container" id="game2">
+            <canvas id="gameCanvas2"></canvas>
+            <div class="stats-panel">
+                <div class="level-container">Level: <span id="level2">1</span></div>
+                <div class="gold-container">Gold: <span id="gold2">0</span></div>
+                <div class="xp-bar-container">
+                    <div id="xp-bar2"></div>
+                    <span class="xp-text">XP: <span id="xp2">0</span>%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu de itens do Jogo 2 -->
+    <div class="tool-selector" id="tools2">
+        <button class="tool-btn" data-tool="wall">🧱 Muro</button>
+        <button class="tool-btn" data-tool="tree">🌳 Árvore</button>
+        <button class="tool-btn" data-tool="water">💧 Água</button>
+        <button class="tool-btn" data-tool="parasite">🦠 Parasita</button>
+        <button class="tool-btn" data-tool="tunnel">🌀 Túnel</button>
+        <button class="tool-btn" data-tool="eraser">🧹 Apagar</button>
+    </div>
+
+    <!-- Painel de Controles Principal -->
+    <div class="floating-controls" id="floatingControls">
+        <div class="controls-header">
+            <span>⋮</span>
+        </div>
+        <div class="game-controls">
+            <button id="startBothBtn" class="start-button">Iniciar Jogos</button>
+            <div class="ai-controls">
+                <button id="aiBtn1" class="ai-button">IA 1</button>
+                <button id="aiBtn2" class="ai-button">IA 2</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Global -->
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <span>🐍 Chat das Cobras</span>
+            <button class="minimize-btn" id="minimizeChat">_</button>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+    </div>
+
+    <!-- Mercy Prompt -->
+    <div class="floating-prompt mercy-prompt" id="mercyPrompt">
+        <div class="prompt-header">
+            <span>📜 Súplica Recebida</span>
+            <button class="prompt-btn" id="closeMercy">×</button>
+        </div>
+        <div class="prompt-content" id="mercyContent"></div>
+    </div>
+
+    <!-- Adicione antes do Chat Global -->
+    <div class="god-ai-window" id="godAiWindow">
+        <div class="god-ai-header">
+            <span>🎮 God AI Control</span>
+            <button class="minimize-btn" id="minimizeGodAi">_</button>
+        </div>
+        <div class="god-ai-content">
+            <div class="difficulty-display">
+                <span>Dificuldade:</span>
+                <div class="difficulty-bar">
+                    <div id="difficultyLevel"></div>
+                </div>
+            </div>
+            <div class="god-ai-controls">
+                <button class="god-ai-button" id="activateGodAi">Ativar God AI</button>
+                <button class="god-ai-button deactivate" id="deactivateGodAi" disabled>Desativar God AI</button>
+            </div>
+            
+            <div class="god-ai-chat">
+                <div class="god-ai-messages" id="godAiMessages"></div>
+                <div class="god-ai-input">
+                    <input type="text" id="godAiInput" placeholder="Fale com a God AI...">
+                    <button id="godAiSend">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug das IAs -->
+    <div class="debug-window" id="aiDebugWindow">
+        <div class="debug-header">
+            <span>🤖 Debug das IAs</span>
+            <button class="minimize-btn" id="minimizeDebug">_</button>
+        </div>
+        <div class="debug-content">
+            <div class="debug-tabs">
+                <button class="debug-tab active" data-ia="1">IA 1</button>
+                <button class="debug-tab" data-ia="2">IA 2</button>
+            </div>
+            <div class="debug-section">
+                <h3>Visão</h3>
+                <div id="visionMap"></div>
+            </div>
+            <div class="debug-section">
+                <h3>Decisões</h3>
+                <div id="decisionLog"></div>
+            </div>
+            <div class="debug-section">
+                <h3>Planejamento</h3>
+                <div id="planningLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts na ordem correta -->
+    <script src="chat.js"></script>
+    <script src="mercy-requests.js"></script>
+    <script src="snake-ai.js"></script>
+    <script src="game.js"></script>
+    <script src="god-ai-brain.js"></script>
+    <script src="god-ai.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
